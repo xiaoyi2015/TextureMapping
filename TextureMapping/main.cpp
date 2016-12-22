@@ -1,5 +1,5 @@
-// This demo creates depth map for a polydata instance by extracting
-// exact ZBuffer values.
+//This project is to optimize the color map of the restruction of 3D human body
+
 #include <vtkSmartPointer.h>
 #include <vtkCamera.h>
 #include <vtkPolyDataMapper.h>
@@ -11,6 +11,13 @@
 #include <vtkBMPWriter.h>
 #include <vtkWindowToImageFilter.h>
 #include <vtkImageShiftScale.h>
+#include "preprocess.h"
+#include "optimization.h"
+
+
+void createZbuffers(){
+
+}
 
 int main(int argc, char *argv[])
 {
@@ -45,37 +52,39 @@ int main(int argc, char *argv[])
 
 	vtkSmartPointer<vtkCamera> aCamera =
 	vtkSmartPointer<vtkCamera>::New();
-	aCamera->SetViewUp(0, 1, 0);
-	aCamera->SetPosition(0, 1, 0);
-	aCamera->SetFocalPoint(0, 0, 0);
-        
-  // Read .ply file
+
+    // Read .ply file
 	reader->SetFileName(inputFilename.c_str());
 
-  //Build visualization enviroment
-  mapper->SetInputConnection(reader->GetOutputPort());
-  actor->SetMapper(mapper);
-  renderer->AddActor(actor);
-  //renderer->SetActiveCamera(aCamera);
-  renWin->AddRenderer(renderer);
-  renWin->SetSize(800, 600);
-  interactor->SetRenderWindow(renWin);
-  renWin->Render();
+	//Build visualization enviroment
+	mapper->SetInputConnection(reader->GetOutputPort());
+	actor->SetMapper(mapper);
+	renderer->AddActor(actor);
+	renWin->AddRenderer(renderer);
+	renWin->SetSize(800, 600);
+	interactor->SetRenderWindow(renWin);
+	renWin->Render();
+	
   
-  // Create Depth Map
-  filter->SetInput(renWin);
-  filter->SetMagnification(1);
-  filter->SetInputBufferTypeToZBuffer();        //Extract z buffer value
+	// Create Depth Map
+	filter->SetInput(renWin);
+	filter->SetMagnification(1);
+	filter->SetInputBufferTypeToZBuffer();        //Extract z buffer value
 
-  scale->SetOutputScalarTypeToUnsignedChar();
-  scale->SetInputConnection(filter->GetOutputPort());
-  scale->SetShift(0);
-  scale->SetScale(-255);
+	scale->SetOutputScalarTypeToUnsignedChar();
+	scale->SetInputConnection(filter->GetOutputPort());
+	scale->SetShift(0);
+	scale->SetScale(-255);
 
-  // Write depth map as a .bmp image
-  imageWriter->SetFileName("C://Users//zln//Desktop//TextureMapping//Samples//ZBuffer//output.bmp");
-  imageWriter->SetInputConnection(scale->GetOutputPort());
-  imageWriter->Write();
 
-  return 0;
+	// Write depth map as a .bmp image
+	imageWriter->SetFileName("C://Users//zln//Desktop//TextureMapping//Samples//ZBuffer//output.bmp");
+	imageWriter->SetInputConnection(scale->GetOutputPort());
+	imageWriter->Write();
+
+	interactor->Start();
+
+    return 0;
 }
+
+
