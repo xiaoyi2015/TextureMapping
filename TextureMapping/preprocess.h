@@ -3,9 +3,21 @@
 
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
-#include <vector>
+#include <vtkPLYReader.h>
+#include <vtkJPEGReader.h>
+#include <vtkImageData.h>
+#include <vtkMatrix4x4.h>
 #include <vtkPoints.h>
+#include <vtkCamera.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkTransform.h>
 
+
+#include <vector>
 using namespace std;
 
 struct Point
@@ -20,31 +32,49 @@ struct Point
 	vector<int> image_ids;
 };
 
-struct Image
+struct ImageTable
 {
 	vector<int> point_id;
-	//内外参，数据
 };
 
-typedef vtkSmartPointer<vtkPolyData> Mesh;
-typedef vtkSmartPointer<vtkPoints> Vertexs;
+struct ZBuffer
+{
+	double buffer[5200][5200];
+};
 
 class PreProcess
 {
 public:
-	PreProcess(Mesh _mesh);
+	PreProcess();
 	~PreProcess();
 
-
-	void InitPointSet(); 
+	void LoadMesh();
+	void LoadImages();
+	void LoadMasks();
+	void LoadInMatrix();
+	void LoadExMatrix();
+	void InitPointSet();
+	void CreateZBuffer();
 	void InitImageSet();
 	void DataPreProcess();
 
 private:
-	Mesh mesh;
-	Vertexs vertexs;
+	vtkSmartPointer<vtkPolyData> mesh;
+	vtkSmartPointer<vtkPoints> vertexs;
+	vector<vtkSmartPointer<vtkMatrix4x4>> inMat;
+	vector<vtkSmartPointer<vtkMatrix4x4>> exMat;
+	vector<vtkSmartPointer<vtkImageData>> imageSet;
+	vector<vtkSmartPointer<vtkImageData>> maskSet;
 	vector<Point> pointSet;
-	vector<Image> imageSet;
+	vector<ImageTable> imageTable;
+	vector<ZBuffer> zBufferSet;
+
+	vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
+	vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
+	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+	vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+	vtkSmartPointer<vtkRenderWindowInteractor> interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
 };
 
 #endif
