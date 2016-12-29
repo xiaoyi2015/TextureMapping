@@ -7,13 +7,17 @@
 int main(int argc, char *argv[])
 {
 	PreProcess init = PreProcess();
+	init.LoadImages();
+	init.LoadMasks();
 	init.LoadExMatrix();
+	init.LoadInMatrix();
+	//init.CalProMatrix();
 	init.LoadMesh(); 
 	init.CreateZBuffer();
-	//init.LoadExMatrix();
-	//init.LoadImages();
-	//init.LoadMasks();
-	//init.InitPointSet();
+	
+	
+	
+	
 
 	system("Pause");
     return 0;

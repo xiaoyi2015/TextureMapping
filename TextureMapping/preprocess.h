@@ -20,27 +20,11 @@
 #include <vector>
 using namespace std;
 
-struct Point
-{
-	float x;
-	float y;
-	float z;
-	float r;
-	float g;
-	float b;
-	float w;
-	vector<int> image_ids;
-};
-
-struct ImageTable
-{
-	vector<int> point_id;
-};
-
-struct ZBuffer
-{
-	double buffer[5200][5200];
-};
+const float near = 50;
+const float far = 300;
+const int w = 554;
+const int h = 830;
+const int num = 30;
 
 class PreProcess
 {
@@ -53,10 +37,9 @@ public:
 	void LoadMasks();
 	void LoadInMatrix();
 	void LoadExMatrix();
-	void InitPointSet();
 	void CreateZBuffer();
-	void InitImageSet();
-	void DataPreProcess();
+	void CalProMatrix();
+	void InitDataIDSet();
 
 private:
 	vtkSmartPointer<vtkPolyData> mesh;
@@ -65,16 +48,13 @@ private:
 	vector<vtkSmartPointer<vtkMatrix4x4>> exMat;
 	vector<vtkSmartPointer<vtkImageData>> imageSet;
 	vector<vtkSmartPointer<vtkImageData>> maskSet;
-	vector<Point> pointSet;
-	vector<ImageTable> imageTable;
-	vector<ZBuffer> zBufferSet;
 
-	vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
-	vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-	vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-	vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
-	vtkSmartPointer<vtkRenderWindowInteractor> interactor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
+	vector<vtkSmartPointer<vtkMatrix4x4>> proMat;
+	vtkSmartPointer<vtkPLYReader> reader;
+	vtkSmartPointer<vtkPolyDataMapper> mapper;
+	vtkSmartPointer<vtkActor> actor;
+	vtkSmartPointer<vtkRenderer> renderer;
+	vtkSmartPointer<vtkRenderWindow> renWin;
 };
 
 #endif
