@@ -10,9 +10,9 @@ public:
 	Vector4();
 	~Vector4();
 
-private:
+public:
 
-	double x, y, z, w;
+	double id, r, g, b;
 
 
 };

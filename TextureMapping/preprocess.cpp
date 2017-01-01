@@ -5,9 +5,6 @@
 #include <vtkWindowToImageFilter.h>
 #include <vtkImageShiftScale.h>
 
-#include <vtkPolyDataMapper2D.h>
-#include <vtkActor2D.h>
-#include <vtkProperty2D.h>
 #include <vtkMatrix3x3.h>
 
 double zbuffer[num][h][h];
@@ -83,7 +80,7 @@ void PreProcess::LoadMasks(){
 		maskReader->Update();
 		maskData = maskReader->GetOutput();
 		maskSet.push_back(maskData);
-		std::cout << "ÏñËØÊý:" << maskData->GetNumberOfPoints() << std::endl;
+		//std::cout << "ÏñËØÊý:" << maskData->GetNumberOfPoints() << std::endl;
 
 		/*maskData->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 		for (int y = 0; y < h; y++)
@@ -164,7 +161,7 @@ void PreProcess::CreateZBuffer(){
 	renWin->AddRenderer(renderer);
 	
 	char name[128];
-	for (int k = 11; k < 12; k++){
+	for (int k = 0; k < 24; k++){
 		double fx, cx, cy;
 		fx = inMat[k]->GetElement(0, 0) / 5184 * h;
 		cx = inMat[k]->GetElement(0, 2) / 3456 * w;
@@ -234,8 +231,10 @@ void PreProcess::CreateZBuffer(){
 		double x, y ,z;
 		double _x, _y, _z;
 		int __x, __y;
-		int num = 0;
+		//int num = 0;
 		maskSet[k]->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
+		imageSet[k]->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
+
 		vtkSmartPointer<vtkMatrix3x3> _m = vtkSmartPointer<vtkMatrix3x3>::New();
 		for (int i = 0; i < 3; i++){
 			for (int j = 0; j < 3; j++){
@@ -243,6 +242,7 @@ void PreProcess::CreateZBuffer(){
 			}
 		}
 		_m->Invert();
+		vector<int> imagePoints;
 
 		for (int i = 0; i < vertexs->GetNumberOfPoints(); i++){
 			x = _m->GetElement(0, 0) * (vertexs->GetPoint(i)[0] - exMat[k]->GetElement(0, 3)) + _m->GetElement(0, 1) * (vertexs->GetPoint(i)[1] - exMat[k]->GetElement(1, 3))
@@ -265,15 +265,29 @@ void PreProcess::CreateZBuffer(){
 			if (__x >= 0 && __x < w && __y >= 0 && __y < h){
 				unsigned char* pixel = static_cast<unsigned char*>(maskSet[k]->GetScalarPointer(__x, __y, 0));
 				if ((int)pixel[0] > 0){
-					z = z - ((near * far) / (far - (renderer->GetZ(__x, __y)*(far - near))));
-					if (z < 0.5 && z > -0.5){
-						num++;
-						cout << num << " " << __x << " " << __y << " " << z << endl;
+					z = _z - ((near * far) / (far - (renderer->GetZ(__x, __y)*(far - near))));
+					if (z < 0.25 && z > - 5){
+						unsigned char* pixel1 = static_cast<unsigned char*>(imageSet[k]->GetScalarPointer(__x, __y, 0));
+						int imagePoint;
+						Vector4 pointColor;
+						pointColor.id = i;
+						pointColor.r = (double)pixel1[0] / 255;
+						pointColor.g = (double)pixel1[1] / 255;
+						pointColor.b = (double)pixel1[2] / 255;
+						imagePoint = i;
+						pointColorSet.push_back(pointColor);
+						imagePoints.push_back(imagePoint);
+						//num++;
+
+						//cout << num << " " << imagePoint << " " << z << endl;
 					}
 				}
 			}
 
 		}
+		imagePointSet.push_back(imagePoints);
+
+
 		//vertexs->GetNumberOfPoints();
 		
 		//for (int i = 0; i < vertexs->GetNumberOfPoints(); i++){
@@ -323,5 +337,11 @@ void PreProcess::CalProMatrix(){
 
 
 void PreProcess::InitDataIDSet(){
+
+	sort(pointColorSet.begin(), pointColorSet.end(), 
+		[](const Vector4 &a, const Vector4 &b){
+		return a.id < b.id;
+		}
+	);
 
 }

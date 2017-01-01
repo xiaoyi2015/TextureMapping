@@ -16,7 +16,8 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkTransform.h>
 
-
+#include "vector4.h"
+#include <algorithm>
 #include <vector>
 using namespace std;
 
@@ -42,19 +43,25 @@ public:
 	void InitDataIDSet();
 
 private:
-	vtkSmartPointer<vtkPolyData> mesh;
-	vtkSmartPointer<vtkPoints> vertexs;
-	vector<vtkSmartPointer<vtkMatrix4x4>> inMat;
-	vector<vtkSmartPointer<vtkMatrix4x4>> exMat;
-	vector<vtkSmartPointer<vtkImageData>> imageSet;
 	vector<vtkSmartPointer<vtkImageData>> maskSet;
-
 	vector<vtkSmartPointer<vtkMatrix4x4>> proMat;
 	vtkSmartPointer<vtkPLYReader> reader;
 	vtkSmartPointer<vtkPolyDataMapper> mapper;
 	vtkSmartPointer<vtkActor> actor;
 	vtkSmartPointer<vtkRenderer> renderer;
 	vtkSmartPointer<vtkRenderWindow> renWin;
+
+public:
+	vector<vector<int>> imagePointSet;
+	vector<Vector4> pointColorSet;
+	vtkSmartPointer<vtkPolyData> mesh;
+	vtkSmartPointer<vtkPoints> vertexs;
+	vector<vtkSmartPointer<vtkMatrix4x4>> inMat;
+	vector<vtkSmartPointer<vtkMatrix4x4>> exMat;
+	vector<vtkSmartPointer<vtkImageData>> imageSet;
+	
+	
+
 };
 
 #endif
