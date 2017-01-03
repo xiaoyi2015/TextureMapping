@@ -12,7 +12,8 @@ public:
 
 public:
 
-	double id, r, g, b;
+	int cnt;
+	double r, g, b;
 
 
 };

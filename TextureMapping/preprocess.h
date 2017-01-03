@@ -8,6 +8,7 @@
 #include <vtkImageData.h>
 #include <vtkMatrix4x4.h>
 #include <vtkPoints.h>
+#include <vtkPointData.h>
 #include <vtkCamera.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
@@ -15,7 +16,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkTransform.h>
-
+#include <vtkUnsignedCharArray.h>
 #include "vector4.h"
 #include <algorithm>
 #include <vector>
@@ -23,8 +24,8 @@ using namespace std;
 
 const float near = 50;
 const float far = 300;
-const int w = 554;
-const int h = 830;
+const int w = 3456;
+const int h = 5184;
 const int num = 30;
 
 class PreProcess
@@ -39,8 +40,9 @@ public:
 	void LoadInMatrix();
 	void LoadExMatrix();
 	void CreateZBuffer();
-	void CalProMatrix();
-	void InitDataIDSet();
+	void InitDataSet(int k);
+	void showInitColor();
+	int CalIntColor(double x);
 
 private:
 	vector<vtkSmartPointer<vtkImageData>> maskSet;
@@ -52,6 +54,8 @@ private:
 	vtkSmartPointer<vtkRenderWindow> renWin;
 
 public:
+	vector<int> imageWidth;
+	vector<int> imageHeight;
 	vector<vector<int>> imagePointSet;
 	vector<Vector4> pointColorSet;
 	vtkSmartPointer<vtkPolyData> mesh;
