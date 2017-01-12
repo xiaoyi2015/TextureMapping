@@ -1,5 +1,5 @@
-#ifndef PREPROCESS_H
-#define PREPROCESS_H
+#ifndef OPTIMIZATION_H
+#define OPTIMIZATION_H
 
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>
@@ -19,41 +19,27 @@
 #include <vtkUnsignedCharArray.h>
 #include "vector4.h"
 #include <algorithm>
-#include <fstream>
 #include <vector>
+#include <fstream>
 using namespace std;
 
-const float near = 50;
-const float far = 300;
-const int w = 3456;
-const int h = 5184;
-const int num = 1;
+const int num = 30;
 
-class PreProcess
+class Optimization
 {
 public:
-	PreProcess();
-	~PreProcess();
+	Optimization();
+	~Optimization();
 
+	void LoadPointId();
 	void LoadMesh();
 	void LoadImages();
 	void LoadMasks();
 	void LoadInMatrix();
 	void LoadExMatrix();
-	void CreateZBuffer();
-	void InitDataSet(int k);
+	void CalProjCoord();
+	int  CalIntColor(double x);
 	void showInitColor();
-	int CalIntColor(double x);
-	void WriteIDInFile();
-
-private:
-	vector<vtkSmartPointer<vtkImageData>> maskSet;
-	vector<vtkSmartPointer<vtkMatrix4x4>> proMat;
-	vtkSmartPointer<vtkPLYReader> reader;
-	vtkSmartPointer<vtkPolyDataMapper> mapper;
-	vtkSmartPointer<vtkActor> actor;
-	vtkSmartPointer<vtkRenderer> renderer;
-	vtkSmartPointer<vtkRenderWindow> renWin;
 
 public:
 	vector<int> imageWidth;
@@ -65,9 +51,15 @@ public:
 	vector<vtkSmartPointer<vtkMatrix4x4>> inMat;
 	vector<vtkSmartPointer<vtkMatrix4x4>> exMat;
 	vector<vtkSmartPointer<vtkImageData>> imageSet;
-	
-	
+	vector<vtkSmartPointer<vtkImageData>> maskSet;
+
+	vtkSmartPointer<vtkPLYReader> reader;
+	vtkSmartPointer<vtkPolyDataMapper> mapper;
+	vtkSmartPointer<vtkActor> actor;
+	vtkSmartPointer<vtkRenderer> renderer;
+	vtkSmartPointer<vtkRenderWindow> renWin;
 
 };
+
 
 #endif

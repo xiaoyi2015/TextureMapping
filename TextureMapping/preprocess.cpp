@@ -194,7 +194,7 @@ void PreProcess::CreateZBuffer(){
 	renWin->AddRenderer(renderer);
 	
 	char name[128];
-	for (int k = 0; k < 30; k++){
+	for (int k = 0; k < num; k++){
 		double fx, cx, cy;
 		fx = inMat[k]->GetElement(0, 0) / imageWidth[num + k] * imageWidth[k];
 		cx = inMat[k]->GetElement(0, 2) / imageWidth[num + k] * imageWidth[k];
@@ -353,7 +353,7 @@ void PreProcess::InitDataSet(int k){
 			unsigned char* pixel = static_cast<unsigned char*>(maskSet[k]->GetScalarPointer(__x, __y, 0));
 			if ((int)pixel[0] > 254){
  				z = _z - ((near * far) / (far - (renderer->GetZ(__x, __y)*(far - near))));
-				if (z < 0.1 && z > - 0.5){
+				if (z < 0.2 && z > - 0.2){
 					unsigned char* pixel1 = static_cast<unsigned char*>(imageSet[k]->GetScalarPointer(__x, __y, 0));
 					int imagePoint;
 					imagePoint = i;
@@ -485,4 +485,18 @@ void PreProcess::showInitColor(){
 	renderWindowInteractor1->SetInteractorStyle(interactorStyle);
 	renderWindow1->Render();
 	renderWindowInteractor1->Start();
+}
+
+
+void PreProcess::WriteIDInFile(){
+	char idFilename[128];
+	for (int i = 0; i < num; i++){
+		sprintf(idFilename, "C://Users//zln//Desktop//Cui//Id//%d.txt", i);
+
+		fstream f(idFilename, ios::out);
+		for (int j = 0; j < imagePointSet[i].size(); j++)
+			f << imagePointSet[i][j] << endl; //Ð´ÈëÊý¾Ý
+		f.close();
+		
+	}
 }
