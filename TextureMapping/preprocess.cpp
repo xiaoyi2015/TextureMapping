@@ -9,8 +9,6 @@
 
 #include <vtkMatrix3x3.h>
 
-double zbuffer[num][840][840];
-
 PreProcess::PreProcess(){
 	mesh = vtkSmartPointer<vtkPolyData>::New();
 	vertexs = vtkSmartPointer<vtkPoints>::New();
@@ -28,7 +26,8 @@ PreProcess::~PreProcess(){
 
 void PreProcess::LoadMesh(){
 	
-	string meshFilename = "C://Users//zln//Desktop//Cui//total_usc_cleaned.ply";
+	//string meshFilename = "C://Users//zln//Desktop//Human//Cui//total_usc_cleaned.ply";
+	string meshFilename = "C://Users//zln//Desktop//Human//Feng//0009_mesh.ply";
 	reader->SetFileName(meshFilename.c_str());
 	reader->Update();
 	mesh = reader->GetOutput();
@@ -46,7 +45,10 @@ void PreProcess::LoadImages(){
 	for (int i = 0; i < num; i ++) 
 	{
 		vtkSmartPointer<vtkJPEGReader> imageReader = vtkSmartPointer<vtkJPEGReader>::New();
-		sprintf(imageFilename, "C://Users//zln//Desktop//Cui//color_small//%d.jpg", i);
+		//sprintf(imageFilename, "C://Users//zln//Desktop//Human//Cui//color_valid_small//%d.jpg", i);
+		sprintf(imageFilename, "C://Users//zln//Desktop//Human//Feng//color_small//%d.jpg", i);
+		//sprintf(imageFilename, "C://Users//zln//Desktop//Cui//color_valid//%d.jpg", i);
+		//sprintf(imageFilename, "C://Users//zln//Desktop//Cui//color//%d.jpg", i);
 		vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
 		imageReader->SetFileName(imageFilename);
 		imageReader->Update();
@@ -92,13 +94,15 @@ void PreProcess::LoadMasks(){
 	for (int i = 0; i < num; i++)
 	{
 		vtkSmartPointer<vtkJPEGReader> maskReader = vtkSmartPointer<vtkJPEGReader>::New();
-		sprintf(maskFilename, "C://Users//zln//Desktop//Cui//mask_small//%d.jpg", i);
+		//sprintf(maskFilename, "C://Users//zln//Desktop//Human//Cui//mask_small//%d.jpg", i);
+		sprintf(maskFilename, "C://Users//zln//Desktop//Human//Feng//mask_small//%d.jpg", i);
+		//sprintf(maskFilename, "C://Users//zln//Desktop//Cui//mask//%d.jpg", i);
 		vtkSmartPointer<vtkImageData> maskData = vtkSmartPointer<vtkImageData>::New();
 		maskReader->SetFileName(maskFilename);
 		maskReader->Update();
 		maskData = maskReader->GetOutput();
 		maskSet.push_back(maskData);
-		//std::cout << "ÏñËØÊý:" << maskData->GetNumberOfPoints() << std::endl;
+		std::cout << "ÏñËØÊý:" << maskData->GetNumberOfPoints() << std::endl;
 
 		/*maskData->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
 		for (int y = 0; y < h; y++)
@@ -123,7 +127,8 @@ void PreProcess::LoadInMatrix(){
 	string s;
 	for (int k = 0; k < num; k++){
 		vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
-		sprintf(inFilename, "C://Users//zln//Desktop//Cui//projection//proj_%d.txt", k);
+		//sprintf(inFilename, "C://Users//zln//Desktop//Human//Cui//projection//proj_%d.txt", k);
+		sprintf(inFilename, "C://Users//zln//Desktop//Human//Feng//projection//proj_%d.txt", k);
 		file.open(inFilename);
 		file >> s;
 		for (int i = 0; i < 3; i++){
@@ -152,7 +157,8 @@ void PreProcess::LoadExMatrix(){
 	double a;
 	for (int k = 1; k < num+1; k++){
 		vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
-		sprintf(exFilename, "C://Users//zln//Desktop//Cui//extrinsic//pp_pointcloud_%d.tf", k);
+		//sprintf(exFilename, "C://Users//zln//Desktop//Human//Cui//extrinsic//pp_pointcloud_%d.tf", k);
+		sprintf(exFilename, "C://Users//zln//Desktop//Human//Feng//extrinsic//pointcloud_%d.tf", k);
 		file.open(exFilename);
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 4; j++){
@@ -257,7 +263,7 @@ void PreProcess::CreateZBuffer(){
 		scale->SetScale(-255);
 
 		
-		sprintf(name, "C://Users//zln//Desktop//Cui//output//%d.bmp", k);
+		sprintf(name, "C://Users//zln//Desktop//Human//Feng//output//%d.bmp", k);
 
 		imageWriter->SetFileName(name);
 		imageWriter->SetInputConnection(scale->GetOutputPort());
@@ -347,12 +353,12 @@ void PreProcess::InitDataSet(int k){
 		__x = CalIntColor(x);
 		__y = CalIntColor(imageHeight[k] - y);
 		
-		//cout << __x << " " << __y << " " << _z << endl;
+		//cout << __x << " " << __y << " " << _z*0.05 << " " << renderer->GetZ(__x, __y) << endl;
 
 		if (__x >= 0 && __x < imageWidth[k] && __y >= 0 && __y < imageHeight[k]){
 			unsigned char* pixel = static_cast<unsigned char*>(maskSet[k]->GetScalarPointer(__x, __y, 0));
 			if ((int)pixel[0] > 254){
- 				z = _z - ((near * far) / (far - (renderer->GetZ(__x, __y)*(far - near))));
+ 				z = _z * 0.05 - ((near * far) / (far - (renderer->GetZ(__x, __y)*(far - near))));
 				if (z < 0.2 && z > - 0.2){
 					unsigned char* pixel1 = static_cast<unsigned char*>(imageSet[k]->GetScalarPointer(__x, __y, 0));
 					int imagePoint;
@@ -388,13 +394,24 @@ void PreProcess::showInitColor(){
 	vtkSmartPointer<vtkUnsignedCharArray> colors =
 		vtkSmartPointer<vtkUnsignedCharArray>::New();
 	colors->SetNumberOfComponents(3);
-	colors->SetName("Colors");
+	colors->SetName("XXX");
+
+	vtkSmartPointer<vtkUnsignedCharArray> InitColors =
+		vtkSmartPointer<vtkUnsignedCharArray>::New();
+	InitColors->SetNumberOfComponents(3);
+	InitColors->SetName("RGB");
+
 	for (int i = 0; i < pointColorSet.size(); i++){
 		unsigned char color[3];
 		if (pointColorSet[i].cnt != 0){
 			/*if (pointColorSet[i].cnt >3){
 				cout << pointColorSet[i].cnt << endl;
 			}*/
+			//pointColorSet[i].r = CalIntColor(pointColorSet[i].r / pointColorSet[i].cnt * 0.5 + mesh->GetPointData()->GetScalars("RGB")->GetTuple(i)[0] * 0.5);
+			//pointColorSet[i].g = CalIntColor(pointColorSet[i].g / pointColorSet[i].cnt * 0.5 + mesh->GetPointData()->GetScalars("RGB")->GetTuple(i)[1] * 0.5);
+			//pointColorSet[i].b = CalIntColor(pointColorSet[i].b / pointColorSet[i].cnt * 0.5 + mesh->GetPointData()->GetScalars("RGB")->GetTuple(i)[2] * 0.5);
+
+
 			pointColorSet[i].r = CalIntColor(pointColorSet[i].r / pointColorSet[i].cnt);
 			pointColorSet[i].g = CalIntColor(pointColorSet[i].g / pointColorSet[i].cnt);
 			pointColorSet[i].b = CalIntColor(pointColorSet[i].b / pointColorSet[i].cnt);
@@ -404,11 +421,11 @@ void PreProcess::showInitColor(){
 			pointColorSet[i].b = 0;*/
 			//cout << pointColorSet[i].r << " " << pointColorSet[i].g << " " << pointColorSet[i].b << endl;
 		}else{
-			pointColorSet[i].r = 0;
-			pointColorSet[i].g = 0;
-			pointColorSet[i].b = 255;
+			pointColorSet[i].r = mesh->GetPointData()->GetScalars("RGB")->GetTuple(i)[0];
+			pointColorSet[i].g = mesh->GetPointData()->GetScalars("RGB")->GetTuple(i)[1];
+			pointColorSet[i].b = mesh->GetPointData()->GetScalars("RGB")->GetTuple(i)[2];
 		}
-		
+
 		color[0] = (unsigned char)pointColorSet[i].r;
 		color[1] = (unsigned char)pointColorSet[i].g;
 		color[2] = (unsigned char)pointColorSet[i].b;
@@ -417,16 +434,7 @@ void PreProcess::showInitColor(){
 		
 	
 	
-	mesh->GetPointData()->SetScalars(colors);
-
-
-	/*string ss = "C://Users//zln//Desktop//Cui//output.ply";
-	vtkSmartPointer<vtkPLYWriter> plyWriter =
-		vtkSmartPointer<vtkPLYWriter>::New();
-	plyWriter->SetFileName(ss.c_str());
-	plyWriter->SetInputConnection(reader->GetOutputPort());
-	plyWriter->Write();*/
-	
+	mesh->GetPointData()->SetScalars(colors);	
 
 	vtkSmartPointer<vtkPolyDataMapper> mapper1 =
 		vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -485,13 +493,24 @@ void PreProcess::showInitColor(){
 	renderWindowInteractor1->SetInteractorStyle(interactorStyle);
 	renderWindow1->Render();
 	renderWindowInteractor1->Start();
+
+	//string ss = "C://Users//zln//Desktop//Human//Cui//output.ply";
+	string ss = "C://Users//zln//Desktop//Human//Feng//output.ply";
+	vtkSmartPointer<vtkPLYWriter> plyWriter =
+		vtkSmartPointer<vtkPLYWriter>::New();
+	plyWriter->SetFileName(ss.c_str());
+	plyWriter->SetInputData(mesh);
+	plyWriter->SetArrayName("XXX");
+
+	plyWriter->Write();
+
 }
 
 
 void PreProcess::WriteIDInFile(){
 	char idFilename[128];
 	for (int i = 0; i < num; i++){
-		sprintf(idFilename, "C://Users//zln//Desktop//Cui//Id//%d.txt", i);
+		sprintf(idFilename, "C://Users//zln//Desktop//Human//Feng//%d.txt", i);
 
 		fstream f(idFilename, ios::out);
 		for (int j = 0; j < imagePointSet[i].size(); j++)
@@ -499,4 +518,11 @@ void PreProcess::WriteIDInFile(){
 		f.close();
 		
 	}
+}
+
+
+void PreProcess::WritePLYFile(){
+
+	
+
 }

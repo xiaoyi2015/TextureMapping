@@ -24,10 +24,10 @@
 using namespace std;
 
 const float near = 50;
-const float far = 300;
+const float far = 5000;
 const int w = 3456;
 const int h = 5184;
-const int num = 1;
+const int num = 27;
 
 class PreProcess
 {
@@ -45,6 +45,7 @@ public:
 	void showInitColor();
 	int CalIntColor(double x);
 	void WriteIDInFile();
+	void WritePLYFile();
 
 private:
 	vector<vtkSmartPointer<vtkImageData>> maskSet;
